@@ -25,7 +25,7 @@ Interruption of computations due to out-of-memory errors leave the resizable arr
 
 # Release
 
-Once compiled with `make`, the library to distribute is in the folder `out`.
+Once compiled with `make`, the library to distribute is in the folder `dist`.
 
 
 # Debugging
@@ -48,7 +48,7 @@ They test the operations with and without out-of-memory errors.
 
 # System
 
-Tested on Linux Mint 20.3, with gcc version 9.4.0.
+Tested on Linux Mint 20.3, with gcc version 9.4.0 and GNU Make 4.2.1.
 
 
 
