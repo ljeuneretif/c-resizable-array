@@ -1,7 +1,6 @@
 #include <assert.h>
 #include "preload_symbols.h"
 #include "resizable_array.h"
-#include <stdint.h>
 
 
 
