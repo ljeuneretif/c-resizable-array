@@ -11,8 +11,34 @@ BUILD_DIR = build
 ## Compiled library for distribution.
 DIST_DIR = dist
 
+# Directories to create.
+NEW_DIRS := $(BUILD_DIR) $(DIST_DIR)
+
 ## Directories to remove when cleaning.
-ROOT_NEW_DIRS := $(BUILD_DIR) $(DIST_DIR)
+CLEAN_DIRS := $(BUILD_DIR) $(DIST_DIR)
+
+
+
+# Extract version numbers.
+LATEST_TAG := $(shell git describe --abbrev=0 --tags 2> /dev/null || echo "v0.0.0")
+
+VERSION_TRIMMED := $(patsubst v%,%,$(LATEST_TAG))
+VERSION_SPLIT := $(subst ., ,$(VERSION_TRIMMED))
+
+VERSION_MAJOR := $(word 1,$(VERSION_SPLIT))
+VERSION_MINOR := $(word 2,$(VERSION_SPLIT))
+VERSION_PATCH := $(word 3,$(VERSION_SPLIT))
+
+
+
+# Name of the library and its files.
+## The name of the library can be changed, for example to avoid collision.
+## The names of the symbols of the library can be changed by a wrapper.
+RA_LIB_NAME ?= resizable_array
+
+RA_LIB_FILENAME := lib$(RA_LIB_NAME).so
+RA_LIB_SONAME := $(RA_LIB_FILENAME).$(VERSION_MAJOR)
+RA_LIB_VERSIONNED_FILENAME := $(RA_LIB_FILENAME).$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
 
 
 
@@ -45,30 +71,39 @@ endif
 GLOBAL_CFLAGS := $(WARN_CFLAGS) $(DEP_CFLAGS) $(OPT_CFLAGS)
 BUILD_PATH := $(BUILD_DIR)/$(BUILD_SUBDIR)
 
-
-
-# Directories to create.
-NEW_DIRS := $(BUILD_DIR) $(BUILD_PATH) $(DIST_DIR)
+NEW_DIRS += $(BUILD_PATH)
 
 
 
 # Compilation of the library.
+RA_HDR_FILES := $(wildcard $(INC_DIR)/*.h)
 RA_SRC_FILES := $(wildcard $(SRC_DIR)/*.c)
 RA_DEP_FILES := $(RA_SRC_FILES:$(SRC_DIR)/%.c=$(BUILD_PATH)/%.d)
 RA_OBJ_FILES := $(RA_SRC_FILES:$(SRC_DIR)/%.c=$(BUILD_PATH)/%.o)
 
 RA_CFLAGS := -fPIC $(GLOBAL_CFLAGS)
 RA_CPPFLAGS := -I$(INC_DIR)
-RA_LDFLAGS := -shared
+RA_LDFLAGS := -shared -Wl,-soname,$(RA_LIB_SONAME)
 RA_LDLIBS :=
 
-## The name of the library can be changed, for example to avoid collision.
-## The names of the symbols of the library can be changed by a wrapper.
-RA_LIB_NAME ?= resizable_array
-RA_LIB_FILENAME := lib$(RA_LIB_NAME).so
+RA_LIB_FILE_BUILD := $(BUILD_PATH)/$(RA_LIB_FILENAME)
+RA_LIB_SONAME_BUILD := $(BUILD_PATH)/$(RA_LIB_SONAME)
+RA_LIB_VERSIONNED_BUILD := $(BUILD_PATH)/$(RA_LIB_VERSIONNED_FILENAME)
 
-RA_LIB_PATH_BUILD := $(BUILD_PATH)/$(RA_LIB_FILENAME)
-RA_LIB_PATH_DIST := $(DIST_DIR)/$(RA_LIB_FILENAME)
+RA_LIB_FILE_DIST := $(DIST_DIR)/$(RA_LIB_FILENAME)
+RA_LIB_SONAME_DIST := $(DIST_DIR)/$(RA_LIB_SONAME)
+RA_LIB_VERSIONNED_DIST := $(DIST_DIR)/$(RA_LIB_VERSIONNED_FILENAME)
+
+
+
+# Installation.
+INSTALL_DIR ?= /usr/local
+INSTALL_HDR_DIR ?= $(INSTALL_DIR)/include/$(RA_LIB_NAME)
+INSTALL_LIB_DIR ?= $(INSTALL_DIR)/lib/$(RA_LIB_NAME)
+
+NEW_DIRS += $(INSTALL_HDR_DIR) $(INSTALL_LIB_DIR)
+
+RA_LIB_VERSIONNED_INSTALL := $(INSTALL_LIB_DIR)/$(RA_LIB_VERSIONNED_FILENAME)
 
 
 
@@ -102,6 +137,8 @@ TEST_RUN := $(addprefix run-,$(TEST_BIN_FILES))
 
 
 
+
+
 # Targets.
 
 ## General targets.
@@ -115,9 +152,15 @@ all: lib test $(if $(IS_RELEASE),copy-lib)
 
 ## Generating the library.
 .PHONY: lib
-lib: $(RA_LIB_PATH_BUILD)
+lib: $(RA_LIB_FILE_BUILD) $(RA_LIB_SONAME_BUILD) $(RA_LIB_VERSIONNED_BUILD)
 
-$(RA_LIB_PATH_BUILD): $(RA_OBJ_FILES) | $(BUILD_PATH)
+$(RA_LIB_FILE_BUILD): $(RA_LIB_SONAME_BUILD)
+	ln -sf $(notdir $<) $@
+
+$(RA_LIB_SONAME_BUILD): $(RA_LIB_VERSIONNED_BUILD)
+	ln -sf $(notdir $<) $@
+
+$(RA_LIB_VERSIONNED_BUILD): $(RA_OBJ_FILES) | $(BUILD_PATH)
 	$(CC) $(RA_LDFLAGS) -o $@ $(filter-out Makefile,$^) $(RA_LDLIBS)
 
 $(RA_OBJ_FILES): $(BUILD_PATH)/%.o: $(SRC_DIR)/%.c | $(BUILD_PATH)
@@ -135,7 +178,7 @@ $(TEST_RUN): run-%: % $(MOCK_LIB_PATH)
 	LD_PRELOAD=$(abspath $(MOCK_LIB_PATH)) ./$<
 
 .SECONDARY: $(TEST_BIN_FILES)
-$(TEST_BIN_FILES): $(BUILD_PATH)/%.tst: $(BUILD_PATH)/%.o $(RA_LIB_PATH_BUILD) | $(BUILD_PATH)
+$(TEST_BIN_FILES): $(BUILD_PATH)/%.tst: $(BUILD_PATH)/%.o $(RA_LIB_SONAME_BUILD) | $(BUILD_PATH)
 	$(CC) $(TEST_LDFLAGS) -o $@ $< $(TEST_LDLIBS)
 
 .SECONDARY: $(TEST_OBJ_FILES)
@@ -161,10 +204,38 @@ $(MOCK_OBJ_FILES): $(BUILD_PATH)/%.o: $(TST_DIR)/%.c | $(BUILD_PATH)
 ## Copy the lib ready to be distributed.
 ## Target run only in release mode (no DEBUG).
 .PHONY: copy-lib
-copy-lib: $(RA_LIB_PATH_DIST)
+copy-lib: $(RA_LIB_FILE_DIST) $(RA_LIB_SONAME_DIST) $(RA_LIB_VERSIONNED_DIST)
 
-$(RA_LIB_PATH_DIST): $(RA_LIB_PATH_BUILD) | $(DIST_DIR)
+$(RA_LIB_VERSIONNED_DIST): $(RA_LIB_VERSIONNED_BUILD) | $(DIST_DIR)
 	cp $< $@
+
+$(RA_LIB_SONAME_DIST): $(RA_LIB_VERSIONNED_DIST)
+	ln -sf $(notdir $<) $@
+
+$(RA_LIB_FILE_DIST): $(RA_LIB_SONAME_DIST)
+	ln -sf $(notdir $<) $@
+
+
+
+.PHONY: install
+install: install-headers install-lib
+
+.PHONY: install-headers
+install-headers: | $(INSTALL_HDR_DIR)
+	install -m 0755 $(RA_HDR_FILES) $(INSTALL_HDR_DIR)/
+
+.PHONY: install-lib
+install-lib: | $(INSTALL_LIB_DIR)
+	install -m 0755 $(RA_LIB_VERSIONNED_DIST) $(RA_LIB_VERSIONNED_INSTALL)
+	cd $(INSTALL_LIB_DIR); \
+	ln -sf $(RA_LIB_VERSIONNED_FILENAME) $(RA_LIB_SONAME); \
+	ln -sf $(RA_LIB_SONAME) $(RA_LIB_FILENAME)
+
+
+
+.PHONY: version
+version:
+	@echo "Version $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)"
 
 
 
@@ -174,9 +245,12 @@ $(NEW_DIRS):
 
 .PHONY: clean
 clean:
-	$(RM) -r $(ROOT_NEW_DIRS)
+	$(RM) -r $(CLEAN_DIRS)
 
 
 
 ## All target files should be updated when the Makefile changes.
-$(RA_LIB_PATH_DIST) $(RA_LIB_PATH_BUILD) $(RA_OBJ_FILES) $(TEST_BIN_FILES) $(TEST_OBJ_FILES): Makefile
+$(RA_LIB_FILE_DIST) $(RA_LIB_SONAME_DIST) $(RA_LIB_VERSIONNED_DIST) \
+	$(RA_LIB_FILE_BUILD) \
+	$(RA_OBJ_FILES) \
+	$(TEST_BIN_FILES) $(TEST_OBJ_FILES): Makefile
