@@ -71,6 +71,10 @@ int resizable_array_push(resizable_array* ra, int value) {
 	...
 */
 
+	if (!ra) {
+		return RESIZABLE_ARRAY_NULL_RA_ERROR;
+	}
+
 	// Computations are performed on the copy of the data structure.
 	size_t n = ra->n;
 	size_t s = ra->s;
@@ -207,10 +211,18 @@ int resizable_array_push(resizable_array* ra, int value) {
 
 
 
-int* resizable_array_locate(const resizable_array* const ra, size_t i) {
+int resizable_array_locate(const resizable_array* const ra, size_t i, int** presult) {
+
+	if (!ra) {
+		return RESIZABLE_ARRAY_NULL_RA_ERROR;
+	}
+
+	if (!presult) {
+		return RESIZABLE_ARRAY_INVALID_ARG_ERROR;
+	}
 
 	if (ra->n <= i) {
-		return NULL;
+		return RESIZABLE_ARRAY_OUT_OF_BOUND_ERROR;
 	}
 
 	// The i-th data is at superblock k, datablock b (within superblock k), element e.
@@ -248,12 +260,18 @@ int* resizable_array_locate(const resizable_array* const ra, size_t i) {
 	size_t p = ((size2 + (k & 1)) << k_half) - 2;
 
 	// 4)
-	return ra->index_of_datablocks[p + b] + e;
+	*presult = ra->index_of_datablocks[p + b] + e;
+
+	return RESIZABLE_ARRAY_OK;
 }
 
 
 
 int resizable_array_pop(resizable_array* ra, int* pvalue) {
+
+	if (!ra) {
+		return RESIZABLE_ARRAY_NULL_RA_ERROR;
+	}
 
 	if (ra->n == 0) {
 		return RESIZABLE_ARRAY_EMPTY_ERROR;

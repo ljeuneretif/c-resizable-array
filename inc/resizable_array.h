@@ -11,6 +11,8 @@
 #define RESIZABLE_ARRAY_MEMORY_ALLOCATION_ERROR 1
 #define RESIZABLE_ARRAY_EMPTY_ERROR 2
 #define RESIZABLE_ARRAY_OUT_OF_BOUND_ERROR 3
+#define RESIZABLE_ARRAY_NULL_RA_ERROR 4
+#define RESIZABLE_ARRAY_INVALID_ARG_ERROR 5
 
 
 
@@ -36,7 +38,7 @@ resizable_array* resizable_array_init(void);
 void resizable_array_free(resizable_array*);
 
 int resizable_array_push(resizable_array*, int);
-int* resizable_array_locate(const resizable_array* const, size_t);
+int resizable_array_locate(const resizable_array* const, size_t, int**);
 int resizable_array_pop(resizable_array*, int*);
 
 

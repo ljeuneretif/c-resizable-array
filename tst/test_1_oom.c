@@ -1,7 +1,6 @@
 #include <assert.h>
 #include "preload_symbols.h"
 #include "resizable_array.h"
-#include "test_1_oom.h"
 #include <unistd.h>
 
 
@@ -10,7 +9,7 @@ static const int VALUE1 = 5;
 
 
 
-void init_failed_malloc(void) {
+static void init_failed_malloc(void) {
 	mock_start();
 
 	mock_malloc_fail_in(1);
@@ -23,7 +22,7 @@ void init_failed_malloc(void) {
 
 
 
-void push_failed_empty_index_realloc(void) {
+static void push_failed_empty_index_realloc(void) {
 	mock_start();
 	resizable_array* ra = resizable_array_init();
 
@@ -44,7 +43,7 @@ void push_failed_empty_index_realloc(void) {
 
 
 
-void push_failed_index_realloc(void) {
+static void push_failed_index_realloc(void) {
 	mock_start();
 	resizable_array* ra = resizable_array_init();
 
@@ -69,7 +68,7 @@ void push_failed_index_realloc(void) {
 
 
 
-void push_failed_empty_datablock_calloc(void) {
+static void push_failed_empty_datablock_calloc(void) {
 	mock_start();
 	resizable_array* ra = resizable_array_init();
 
@@ -89,7 +88,7 @@ void push_failed_empty_datablock_calloc(void) {
 
 
 
-void push_failed_datablock_calloc(void) {
+static void push_failed_datablock_calloc(void) {
 	mock_start();
 	resizable_array* ra = resizable_array_init();
 
@@ -111,7 +110,7 @@ void push_failed_datablock_calloc(void) {
 
 
 
-void pop_failed_index_realloc(void) {
+static void pop_failed_index_realloc(void) {
 	mock_start();
 	resizable_array* ra = resizable_array_init();
 

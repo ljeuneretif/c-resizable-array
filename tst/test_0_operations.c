@@ -1,7 +1,6 @@
 #include <assert.h>
 #include "preload_symbols.h"
 #include "resizable_array.h"
-#include "test_0_operations.h"
 
 
 
@@ -10,7 +9,7 @@ static const int VALUE2 = 9;
 
 
 
-void init_free(void) {
+static void init_free(void) {
 	mock_start();
 
 	resizable_array* ra = resizable_array_init();
@@ -21,14 +20,14 @@ void init_free(void) {
 
 
 
-void free_null(void) {
+static void free_null(void) {
 	resizable_array_free(NULL);
 	LOG;
 }
 
 
 
-void push(void) {
+static void push(void) {
 	int c = 0;
 	mock_start();
 
@@ -43,7 +42,18 @@ void push(void) {
 
 
 
-void pop(void) {
+static void push_null(void) {
+	int c = 0;
+
+	c = resizable_array_push(NULL, VALUE1);
+	assert(c == RESIZABLE_ARRAY_NULL_RA_ERROR);
+
+	LOG;
+}
+
+
+
+static void pop(void) {
 	int c = 0, v = 0;
 	mock_start();
 
@@ -61,7 +71,7 @@ void pop(void) {
 
 
 
-void pop_into_null(void) {
+static void pop_null_arg(void) {
 	int c = 0;
 	mock_start();
 
@@ -79,7 +89,7 @@ void pop_into_null(void) {
 
 
 
-void pop_empty(void) {
+static void pop_empty(void) {
 	int c = 0;
 	mock_start();
 
@@ -95,15 +105,28 @@ void pop_empty(void) {
 
 
 
-void locate(void) {
-	int* pvalue = NULL;
+static void pop_null_ra(void) {
+	int c = 0, v = 0;
+
+	c = resizable_array_pop(NULL, &v);
+	assert(c == RESIZABLE_ARRAY_NULL_RA_ERROR);
+	assert(v == 0);
+
+	LOG;
+}
+
+
+
+static void locate(void) {
+	int c = 0, *pv = NULL;
 	mock_start();
 
 	resizable_array* ra = resizable_array_init();
 	resizable_array_push(ra, VALUE1);
 
-	pvalue = resizable_array_locate(ra, 0);
-	assert(*pvalue == VALUE1);
+	c = resizable_array_locate(ra, 0, &pv);
+	assert(c == RESIZABLE_ARRAY_OK);
+	assert(*pv == VALUE1);
 
 	resizable_array_free(ra);
 	assert_memory_ok();
@@ -112,16 +135,27 @@ void locate(void) {
 
 
 
-void locate_oob(void) {
-	int* pvalue = NULL;
+static void locate_null_ra(void) {
+	int c = 0, *pv = NULL;
+
+	c = resizable_array_locate(NULL, 0, &pv);
+	assert(c == RESIZABLE_ARRAY_NULL_RA_ERROR);
+	assert(pv == NULL);
+
+	LOG;
+}
+
+
+
+static void locate_null_arg(void) {
+	int c = 0;
 	mock_start();
 
 	resizable_array* ra = resizable_array_init();
 	resizable_array_push(ra, VALUE1);
-	resizable_array_push(ra, VALUE2);
 
-	pvalue = resizable_array_locate(ra, 2);
-	assert(pvalue == NULL);
+	c = resizable_array_locate(ra, 0, NULL);
+	assert(c == RESIZABLE_ARRAY_INVALID_ARG_ERROR);
 
 	resizable_array_free(ra);
 	assert_memory_ok();
@@ -130,11 +164,28 @@ void locate_oob(void) {
 
 
 
-void push_locate_pop_32(void) {
+static void locate_oob(void) {
+	int c = 0, *pv = NULL;
+	mock_start();
+
+	resizable_array* ra = resizable_array_init();
+
+	c = resizable_array_locate(ra, 0, &pv);
+	assert(c == RESIZABLE_ARRAY_OUT_OF_BOUND_ERROR);
+	assert(pv == NULL);
+
+	resizable_array_free(ra);
+	assert_memory_ok();
+	LOG;
+}
+
+
+
+static void push_locate_pop_32(void) {
 	const int offset = 15;
 	const int max = 32;
 
-	int c, v, *pvalue;
+	int c = 0, v = 0, *pv = NULL;
 
 
 	mock_start();
@@ -149,8 +200,10 @@ void push_locate_pop_32(void) {
 
 
 	for (int i = 0; i < max; ++i) {
-		pvalue = resizable_array_locate(ra, (size_t) i);
-		assert(*pvalue == i+offset);
+		pv = NULL;
+		c = resizable_array_locate(ra, (size_t) i, &pv);
+		assert(c == RESIZABLE_ARRAY_OK);
+		assert(*pv == i+offset);
 	}
 
 
@@ -170,7 +223,7 @@ void push_locate_pop_32(void) {
 
 
 
-void reuse_empty_ra(void) {
+static void reuse_empty_ra(void) {
 	int c = 0;
 	mock_start();
 
@@ -191,12 +244,20 @@ void reuse_empty_ra(void) {
 int main(void) {
 	init_free();
 	free_null();
+
 	push();
+	push_null();
+
 	pop();
-	pop_into_null();
 	pop_empty();
+	pop_null_arg();
+	pop_null_ra();
+
 	locate();
+	locate_null_ra();
+	locate_null_arg();
 	locate_oob();
+
 	push_locate_pop_32();
 	reuse_empty_ra();
 
