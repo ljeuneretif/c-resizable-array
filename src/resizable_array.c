@@ -1,4 +1,7 @@
+#include <assert.h>
+#include <limits.h>
 #include "resizable_array.h"
+#include <stdint.h>
 
 
 
@@ -229,35 +232,43 @@ int resizable_array_locate(const resizable_array* const ra, size_t i, int** pres
 
 	// 1) 2)
 	// a)
-	// On 64-bit systems, size_t is usually 64-bit long,
-	// which is equivalent to unsigned long long int.
-	// __builtin_clzll takes in unsigned long long int.
-	// See https://gcc.gnu.org/onlinedocs/gcc/Bit-Operation-Builtins.html
-	size_t j = i + 1;
+	const size_t j = i + 1;
 
-	int j_bitlength = (int) (sizeof(size_t) * 8) - __builtin_clzll((unsigned long long int) j);
-	int k = j_bitlength - 1;
-	int k_half = k / 2;
+	const int bitsize_of_ull = sizeof(unsigned long long int) * 8;
+
+	// On 64-bit systems, unsigned long long int should be enough to store size_t.
+	static_assert(SIZE_MAX <= ULLONG_MAX);
+	// The conversion below is correct.
+	const int clz_j_plus_1 = __builtin_clzll((unsigned long long int) j) + 1;
+
+	if (bitsize_of_ull < clz_j_plus_1) {
+		return RESIZABLE_ARRAY_UNKNOWN_ERROR;
+	}
+
+	// Now, bitsize_of_ull >= clz_j_plus_1
+
+	const unsigned int k = (unsigned int) (bitsize_of_ull - clz_j_plus_1);
+	const unsigned int k_half = k / 2;
 
 	// b) c)
-	int e_bitlength = k_half + (k & 1); // ceiling(k/2)
+	const unsigned int e_bitlength = k_half + (k & 1); // ceiling(k/2)
 
-	size_t size1 = 1;
+	const size_t size1 = 1;
 
-	size_t right_limit_of_b = (size1 << e_bitlength);
+	const size_t right_limit_of_b = (size1 << e_bitlength);
 
-	size_t b_mask = (size1 << k) - right_limit_of_b;
-	size_t e_mask = right_limit_of_b - 1;
+	const size_t b_mask = (size1 << k) - right_limit_of_b;
+	const size_t e_mask = right_limit_of_b - 1;
 
-	size_t b = (j & b_mask) >> e_bitlength;
-	size_t e = j & e_mask;
+	const size_t b = (j & b_mask) >> e_bitlength;
+	const size_t e = j & e_mask;
 
 	// 3)
 	// p counts the datablocks before superblock k.
 	// p is the sum of 2^floor(a/2) for 0 <= a < k.
 	// The formula below corrects the one stated in the article.
-	size_t size2 = 2;
-	size_t p = ((size2 + (k & 1)) << k_half) - 2;
+	const size_t size2 = 2;
+	const size_t p = ((size2 + (size_t) (k & 1)) << k_half) - 2;
 
 	// 4)
 	*presult = ra->index_of_datablocks[p + b] + e;

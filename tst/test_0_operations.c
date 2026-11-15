@@ -1,6 +1,7 @@
 #include <assert.h>
 #include "preload_symbols.h"
 #include "resizable_array.h"
+#include <stdint.h>
 
 
 
@@ -249,8 +250,8 @@ int main(void) {
 	push_null();
 
 	pop();
-	pop_empty();
 	pop_null_arg();
+	pop_empty();
 	pop_null_ra();
 
 	locate();
