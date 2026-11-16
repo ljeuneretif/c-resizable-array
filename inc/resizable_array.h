@@ -38,7 +38,7 @@ typedef struct {
 	size_t count_of_empty_datablock;
 
 	size_t length_of_index;
-	int** index_of_datablocks;
+	SCALAR_TYPE** index_of_datablocks;
 } RA_LIB_NAME;
 
 

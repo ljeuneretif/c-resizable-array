@@ -83,8 +83,8 @@ NEW_DIRS += $(BUILD_PATH)
 
 
 # Compilation of the library.
-RA_HDR_FILES := $(wildcard $(INC_DIR)/*.h)
-RA_HDR_BUILD := $(RA_HDR_FILES:$(INC_DIR)/%.h=$(BUILD_PATH)/%.h)
+RA_HDR_FILE := $(INC_DIR)/resizable_array.h
+RA_HDR_BUILD := $(BUILD_PATH)/$(RA_LIB_NAME).h
 
 RA_SRC_FILES := $(wildcard $(SRC_DIR)/*.c)
 RA_DEP_FILES := $(RA_SRC_FILES:$(SRC_DIR)/%.c=$(BUILD_PATH)/%.d)
@@ -163,13 +163,13 @@ all: lib test $(if $(IS_RELEASE),copy-lib)
 .PHONY: lib
 lib: $(RA_HDR_BUILD) $(RA_LIB_FILE_BUILD) $(RA_LIB_SONAME_BUILD) $(RA_LIB_VERSIONNED_BUILD)
 
-$(RA_HDR_BUILD): $(BUILD_PATH)/%.h: $(INC_DIR)/%.h | $(BUILD_PATH)
+$(RA_HDR_BUILD): $(RA_HDR_FILE) | $(BUILD_PATH)
 	@echo "/* Header automatically generated - Any modification will be lost */" > $@
 	@echo "#ifndef $(RA_LIB_NAME)_H" >> $@
 	@echo "#define $(RA_LIB_NAME)_H" >> $@
 	@echo "#define SCALAR_TYPE $(SCALAR_TYPE)" >> $@
 	@echo "#define RA_LIB_NAME $(RA_LIB_NAME)" >> $@
-	@cat $< >> $@
+	@cat $(RA_HDR_FILE) >> $@
 	@echo "#endif" >> $@
 
 
@@ -241,7 +241,7 @@ install: install-headers install-lib
 
 .PHONY: install-headers
 install-headers: | $(INSTALL_HDR_DIR)
-	install -m 0755 $(RA_HDR_FILES) $(INSTALL_HDR_DIR)/
+	install -m 0755 $(RA_HDR_BUILD) $(INSTALL_HDR_DIR)/
 
 .PHONY: install-lib
 install-lib: | $(INSTALL_LIB_DIR)
@@ -271,5 +271,6 @@ clean:
 ## All target files should be updated when the Makefile changes.
 $(RA_LIB_FILE_DIST) $(RA_LIB_SONAME_DIST) $(RA_LIB_VERSIONNED_DIST) \
 	$(RA_LIB_FILE_BUILD) \
+	$(RA_HDR_BUILD) \
 	$(RA_OBJ_FILES) \
 	$(TEST_BIN_FILES) $(TEST_OBJ_FILES): Makefile
