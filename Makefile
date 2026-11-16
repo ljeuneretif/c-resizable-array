@@ -31,29 +31,16 @@ VERSION_PATCH := $(word 3,$(VERSION_SPLIT))
 
 
 
-# Name of the library and its files.
-## The name of the library can be changed, for example to avoid collision.
-## The names of the symbols of the library can be changed by a wrapper.
-RA_LIB_NAME ?= resizable_array
-
-RA_LIB_FILENAME := lib$(RA_LIB_NAME).so
-RA_LIB_SONAME := $(RA_LIB_FILENAME).$(VERSION_MAJOR)
-RA_LIB_VERSIONNED_FILENAME := $(RA_LIB_FILENAME).$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
-
-
-
-# General-purpose flags.
-WARN_CFLAGS = -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wstrict-prototypes -Wmissing-prototypes -Werror
-DEP_CFLAGS = -MMD -MP
+# Debug, trace, etc flags.
+## Depending on the environment variables:
+## optimize, or debug optionnally switching the traces on.
+DEBUG ?=
+TRACE ?= 
 
 OPT_CFLAGS = 
 BUILD_SUBDIR =
 IS_RELEASE =
 
-## Depending on the environment variables:
-## optimize, or debug optionnally switching the traces on.
-DEBUG ?=
-TRACE ?= 
 ifdef DEBUG
 	OPT_CFLAGS += -g -DDEBUG
 	BUILD_SUBDIR = debug
@@ -68,6 +55,26 @@ else
 endif
 
 
+
+# Polymorphism of the library.
+SCALAR_TYPE ?= int
+
+## The name of the library can be changed to accomodate polymorphism.
+## The symbols are prefixed with the name of the library.
+RA_LIB_NAME ?= resizable_array
+
+
+
+# Name of the compiled files of the library.
+RA_LIB_FILENAME := lib$(RA_LIB_NAME).so
+RA_LIB_SONAME := $(RA_LIB_FILENAME).$(VERSION_MAJOR)
+RA_LIB_VERSIONNED_FILENAME := $(RA_LIB_FILENAME).$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
+
+
+# General-purpose flags.
+WARN_CFLAGS = -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wstrict-prototypes -Wmissing-prototypes -Werror
+DEP_CFLAGS = -MMD -MP
+
 GLOBAL_CFLAGS := $(WARN_CFLAGS) $(DEP_CFLAGS) $(OPT_CFLAGS)
 BUILD_PATH := $(BUILD_DIR)/$(BUILD_SUBDIR)
 
@@ -77,11 +84,13 @@ NEW_DIRS += $(BUILD_PATH)
 
 # Compilation of the library.
 RA_HDR_FILES := $(wildcard $(INC_DIR)/*.h)
+RA_HDR_BUILD := $(RA_HDR_FILES:$(INC_DIR)/%.h=$(BUILD_PATH)/%.h)
+
 RA_SRC_FILES := $(wildcard $(SRC_DIR)/*.c)
 RA_DEP_FILES := $(RA_SRC_FILES:$(SRC_DIR)/%.c=$(BUILD_PATH)/%.d)
 RA_OBJ_FILES := $(RA_SRC_FILES:$(SRC_DIR)/%.c=$(BUILD_PATH)/%.o)
 
-RA_CFLAGS := -fPIC $(GLOBAL_CFLAGS)
+RA_CFLAGS := -fPIC $(GLOBAL_CFLAGS) -D"SCALAR_TYPE=$(SCALAR_TYPE)" -D"RA_LIB_NAME=$(RA_LIB_NAME)"
 RA_CPPFLAGS := -I$(INC_DIR)
 RA_LDFLAGS := -shared -Wl,-soname,$(RA_LIB_SONAME)
 RA_LDLIBS :=
@@ -128,7 +137,7 @@ TEST_OBJ_FILES := $(TEST_SRC_FILES:$(TST_DIR)/%.c=$(BUILD_PATH)/%.o)
 TEST_BIN_FILES := $(TEST_OBJ_FILES:$(BUILD_PATH)/%.o=$(BUILD_PATH)/%.tst)
 
 TEST_CFLAGS := $(GLOBAL_CFLAGS) -D_GNU_SOURCE
-TEST_CPPFLAGS := $(RA_CPPFLAGS) -I$(TST_DIR)
+TEST_CPPFLAGS := -I$(BUILD_PATH) -I$(TST_DIR)
 TEST_LDFLAGS := -rdynamic -L$(abspath $(BUILD_PATH))
 TEST_LDLIBS := -l$(RA_LIB_NAME) -ldl -Wl,-rpath,$(abspath $(BUILD_PATH))
 
@@ -152,7 +161,17 @@ all: lib test $(if $(IS_RELEASE),copy-lib)
 
 ## Generating the library.
 .PHONY: lib
-lib: $(RA_LIB_FILE_BUILD) $(RA_LIB_SONAME_BUILD) $(RA_LIB_VERSIONNED_BUILD)
+lib: $(RA_HDR_BUILD) $(RA_LIB_FILE_BUILD) $(RA_LIB_SONAME_BUILD) $(RA_LIB_VERSIONNED_BUILD)
+
+$(RA_HDR_BUILD): $(BUILD_PATH)/%.h: $(INC_DIR)/%.h | $(BUILD_PATH)
+	@echo "/* Header automatically generated - Any modification will be lost */" > $@
+	@echo "#ifndef $(RA_LIB_NAME)_H" >> $@
+	@echo "#define $(RA_LIB_NAME)_H" >> $@
+	@echo "#define SCALAR_TYPE $(SCALAR_TYPE)" >> $@
+	@echo "#define RA_LIB_NAME $(RA_LIB_NAME)" >> $@
+	@cat $< >> $@
+	@echo "#endif" >> $@
+
 
 $(RA_LIB_FILE_BUILD): $(RA_LIB_SONAME_BUILD)
 	ln -sf $(notdir $<) $@

@@ -1,8 +1,3 @@
-#ifndef RESIZABLE_ARRAY_H
-#define RESIZABLE_ARRAY_H
-
-
-
 #include <stdlib.h>
 
 
@@ -14,6 +9,18 @@
 #define RESIZABLE_ARRAY_OUT_OF_BOUND_ERROR 4
 #define RESIZABLE_ARRAY_NULL_RA_ERROR 5
 #define RESIZABLE_ARRAY_INVALID_ARG_ERROR 6
+
+
+
+#define RA_CONCAT_AUX(a, b) a##b
+#define RA_CONCAT(a, b) RA_CONCAT_AUX(a, b)
+#define RA_FUNC_SUFFIX(suffix) RA_CONCAT(RA_LIB_NAME, suffix)
+
+#define RESIZABLE_ARRAY_INIT RA_FUNC_SUFFIX(_init)
+#define RESIZABLE_ARRAY_FREE RA_FUNC_SUFFIX(_free)
+#define RESIZABLE_ARRAY_PUSH RA_FUNC_SUFFIX(_push)
+#define RESIZABLE_ARRAY_LOCATE RA_FUNC_SUFFIX(_locate)
+#define RESIZABLE_ARRAY_POP RA_FUNC_SUFFIX(_pop)
 
 
 
@@ -32,16 +39,12 @@ typedef struct {
 
 	size_t length_of_index;
 	int** index_of_datablocks;
-} resizable_array;
+} RA_LIB_NAME;
 
 
-resizable_array* resizable_array_init(void);
-void resizable_array_free(resizable_array*);
+RA_LIB_NAME* RESIZABLE_ARRAY_INIT(void);
+void RESIZABLE_ARRAY_FREE(RA_LIB_NAME*);
 
-int resizable_array_push(resizable_array*, int);
-int resizable_array_locate(const resizable_array* const, size_t, int**);
-int resizable_array_pop(resizable_array*, int*);
-
-
-
-#endif // #ifndef RESIZABLE_ARRAY_H
+int RESIZABLE_ARRAY_PUSH(RA_LIB_NAME*, SCALAR_TYPE);
+int RESIZABLE_ARRAY_LOCATE(const RA_LIB_NAME* const, size_t, SCALAR_TYPE**);
+int RESIZABLE_ARRAY_POP(RA_LIB_NAME*, SCALAR_TYPE*);

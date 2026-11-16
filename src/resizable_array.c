@@ -5,10 +5,10 @@
 
 
 
-resizable_array* resizable_array_init(void) {
+RA_LIB_NAME* RESIZABLE_ARRAY_INIT(void) {
 
-	resizable_array* ra;
-	if (!(ra = malloc(sizeof(resizable_array)))) return NULL;
+	RA_LIB_NAME* ra;
+	if (!(ra = malloc(sizeof(RA_LIB_NAME)))) return NULL;
 
 
 	ra->n = 0;
@@ -32,7 +32,7 @@ resizable_array* resizable_array_init(void) {
 
 
 
-void resizable_array_free(resizable_array* ra) {
+void RESIZABLE_ARRAY_FREE(RA_LIB_NAME* ra) {
 
 	if (!ra) return;
 
@@ -49,7 +49,7 @@ void resizable_array_free(resizable_array* ra) {
 
 
 
-int resizable_array_push(resizable_array* ra, int value) {
+int RESIZABLE_ARRAY_PUSH(RA_LIB_NAME* ra, SCALAR_TYPE value) {
 /*
 	The growth happens in the following manner:
 	The k-th superblock has 2^floor(k/2) datablocks each of length 2^ceiling(k/2)
@@ -92,7 +92,7 @@ int resizable_array_push(resizable_array* ra, int value) {
 	size_t count_of_empty_datablock = ra->count_of_empty_datablock;
 
 	size_t length_of_index = ra->length_of_index;
-	int** index_of_datablocks = ra->index_of_datablocks;
+	SCALAR_TYPE** index_of_datablocks = ra->index_of_datablocks;
 
 
 	// 1)
@@ -151,7 +151,7 @@ int resizable_array_push(resizable_array* ra, int value) {
 					length_of_index *= 2;
 				}
 
-				if (!(index_of_datablocks = realloc(index_of_datablocks, length_of_index * sizeof(int*)))) {
+				if (!(index_of_datablocks = realloc(index_of_datablocks, length_of_index * sizeof(SCALAR_TYPE*)))) {
 					return RESIZABLE_ARRAY_MEMORY_ALLOCATION_ERROR;
 				}
 
@@ -163,8 +163,8 @@ int resizable_array_push(resizable_array* ra, int value) {
 
 			// ii)
 			// Create a new last datablock.
-			int *datablock = NULL;
-			if (!(datablock = calloc(size_of_last_non_empty_datablock, sizeof(int)))) {
+			SCALAR_TYPE* datablock = NULL;
+			if (!(datablock = calloc(size_of_last_non_empty_datablock, sizeof(SCALAR_TYPE)))) {
 				return RESIZABLE_ARRAY_MEMORY_ALLOCATION_ERROR;
 			}
 			
@@ -214,7 +214,7 @@ int resizable_array_push(resizable_array* ra, int value) {
 
 
 
-int resizable_array_locate(const resizable_array* const ra, size_t i, int** presult) {
+int RESIZABLE_ARRAY_LOCATE(const RA_LIB_NAME* const ra, size_t i, SCALAR_TYPE** presult) {
 
 	if (!ra) {
 		return RESIZABLE_ARRAY_NULL_RA_ERROR;
@@ -278,7 +278,7 @@ int resizable_array_locate(const resizable_array* const ra, size_t i, int** pres
 
 
 
-int resizable_array_pop(resizable_array* ra, int* pvalue) {
+int RESIZABLE_ARRAY_POP(RA_LIB_NAME* ra, SCALAR_TYPE* pvalue) {
 
 	if (!ra) {
 		return RESIZABLE_ARRAY_NULL_RA_ERROR;
@@ -308,7 +308,7 @@ int resizable_array_pop(resizable_array* ra, int* pvalue) {
 	size_t count_of_empty_datablock = ra->count_of_empty_datablock;
 
 	size_t length_of_index = ra->length_of_index;
-	int** index_of_datablocks = ra->index_of_datablocks;
+	SCALAR_TYPE** index_of_datablocks = ra->index_of_datablocks;
 
 
 	--n;
@@ -332,7 +332,7 @@ int resizable_array_pop(resizable_array* ra, int* pvalue) {
 			length_of_index /= 2;
 
 			if (length_of_index != 0) {
-				if (!(index_of_datablocks = realloc(index_of_datablocks, length_of_index * sizeof(int*)))) {
+				if (!(index_of_datablocks = realloc(index_of_datablocks, length_of_index * sizeof(SCALAR_TYPE)))) {
 					return RESIZABLE_ARRAY_MEMORY_ALLOCATION_ERROR;
 				}
 			} else {
