@@ -7,7 +7,7 @@ SUB_DIRS = $(sort $(INC_DIR) $(SRC_DIR) $(TST_DIR))
 BUILD_DIR = $(ROOT_DIR)/build
 DIST_DIR = $(ROOT_DIR)/dist
 
-# Directories to create.
+# Directories to create as required by the operation demanded.
 NEW_DIRS := $(BUILD_DIR) $(DIST_DIR)
 
 # Directories to remove when cleaning.

@@ -3,12 +3,12 @@
 ## Depending on the environment variables:
 ## optimize, or debug optionnally switching the traces on.
 # TODO convert to build mode: BUILD=debug make; BUILD=trace make
-DEBUG ?=
+DEBUG ?= 
 TRACE ?= 
 
 OPT_CFLAGS = 
-BUILD_SUBDIR =
-IS_RELEASE =
+BUILD_SUBDIR = 
+IS_RELEASE = 
 
 ifdef DEBUG
 	OPT_CFLAGS += -g -DDEBUG
@@ -27,7 +27,7 @@ endif
 # General-purpose flags.
 CC ?= gcc
 
-WARN_CFLAGS = -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wstrict-prototypes -Wmissing-prototypes -Werror
+WARN_CFLAGS = -std=c11 -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wstrict-prototypes -Wmissing-prototypes -Werror
 DEP_CFLAGS = -MMD -MP
 
 # TODO Add $(CFLAGS) etc to allow overloading.

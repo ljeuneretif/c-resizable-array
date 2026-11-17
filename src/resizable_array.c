@@ -1,4 +1,20 @@
-#include <assert.h>
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
+	#include <assert.h>
+#else
+	#define STATIC_ASSERT_CONCAT_(a, b) a##b
+	#define STATIC_ASSERT_CONCAT(a, b) STATIC_ASSERT_CONCAT_(a, b)
+
+	#if defined(__GNUC__) || defined(__clang__)
+		#define STATIC_ASSERT_UNUSED __attribute__((unused))
+	#else
+		#define STATIC_ASSERT_UNUSED
+	#endif
+
+	/* Declare an array of size 1 if true, -1 otherwise (compilation error) */
+	#define static_assert(cond) \
+		typedef char STATIC_ASSERT_CONCAT(static_assertion_failed_at_line_, __LINE__)[(cond) ? 1 : -1] STATIC_ASSERT_UNUSED
+#endif
+
 #include <limits.h>
 #include "resizable_array.h"
 #include <stdint.h>
