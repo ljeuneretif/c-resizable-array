@@ -14,16 +14,16 @@ NEW_DIRS += $(INSTALL_HDR_DIR) $(INSTALL_LIB_DIR) $(INSTALL_PKG_DIR)
 
 install: install-headers install-lib install-pkgconfig
 
-install-headers: | $(INSTALL_HDR_DIR)
-	install -m 0644 $(RA_HDR_BUILD) $(INSTALL_HDR_DIR)/
+install-headers: $(RA_HDR_OUT) | $(INSTALL_HDR_DIR)
+	install -m 0644 $(RA_HDR_OUT) $(INSTALL_HDR_DIR)/
 
-install-lib: | $(INSTALL_LIB_DIR)
-	install -m 0755 $(RA_LIB_VERSIONNED_DIST) $(INSTALL_LIB_DIR)/$(RA_LIB_VERSIONNED_FILENAME)
+install-lib: $(RA_LIB_VERSIONNED_OUT) | $(INSTALL_LIB_DIR)
+	install -m 0755 $(RA_LIB_VERSIONNED_OUT) $(INSTALL_LIB_DIR)/$(RA_LIB_VERSIONNED_FILENAME)
 	cd $(INSTALL_LIB_DIR); \
 	ln -sf $(RA_LIB_VERSIONNED_FILENAME) $(RA_LIB_SONAME); \
 	ln -sf $(RA_LIB_SONAME) $(RA_LIB_FILENAME)
 
-install-pkgconfig: $(PKGCONFIG_DIST) | $(INSTALL_PKG_DIR)
+install-pkgconfig: $(PKGCONFIG_OUT) | $(INSTALL_PKG_DIR)
 	install -m 0644 $< $(INSTALL_PKG_DIR)/
 
 

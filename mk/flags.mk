@@ -1,37 +1,17 @@
-
-# Flags for debug, trace, etc.
-## Depending on the environment variables:
-## optimize, or debug optionnally switching the traces on.
-# TODO convert to build mode: BUILD=debug make; BUILD=trace make
-DEBUG ?= 
-TRACE ?= 
-
-OPT_CFLAGS = 
-BUILD_SUBDIR = 
-IS_RELEASE = 
-
-ifdef DEBUG
-	OPT_CFLAGS += -g -DDEBUG
-	BUILD_SUBDIR = debug
-	ifdef TRACE
-		OPT_CFLAGS += -DTRACE
-		BUILD_SUBDIR := trace
-	endif
-else
-	OPT_CFLAGS += -O2
-	BUILD_SUBDIR = release
-	IS_RELEASE = 1
-endif
-
-
-# General-purpose flags.
 CC ?= gcc
 
-WARN_CFLAGS = -std=c11 -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wstrict-prototypes -Wmissing-prototypes -Werror
-DEP_CFLAGS = -MMD -MP
+STDC := -std=c11
+WARN_CFLAGS := -Wall -Wextra -Wpedantic -Wshadow -Wconversion\
+ -Wstrict-prototypes -Wmissing-prototypes -Werror
+CFLAGS ?= $(STDC) $(WARN_CFLAGS)
 
-# TODO Add $(CFLAGS) etc to allow overloading.
-GLOBAL_CFLAGS := $(WARN_CFLAGS) $(DEP_CFLAGS) $(OPT_CFLAGS)
-BUILD_PATH := $(BUILD_DIR)/$(BUILD_SUBDIR)
+ifeq ($(BUILD),release)
+    OPT_CFLAGS := -O2
+else ifeq ($(BUILD),debug)
+    OPT_CFLAGS := -g -DDEBUG
+else ifeq ($(BUILD),trace)
+    OPT_CFLAGS := -g -DDEBUG -DTRACE
+endif
 
-NEW_DIRS += $(BUILD_PATH)
+DEP_CFLAGS := -MMD -MP
+ALL_CFLAGS := $(CFLAGS) $(DEP_CFLAGS) $(OPT_CFLAGS)

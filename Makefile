@@ -4,38 +4,46 @@ include common.mk
 export MAKEFILE_DEPS := $(realpath $(firstword $(MAKEFILE_LIST)))
 
 
-# Targets.
-.PHONY: all clean dist help \
+.PHONY: all clean out help \
 	install install-headers install-lib install-pkgconfig \
 	lib test $(SUB_DIRS) \
 	uninstall uninstall-headers uninstall-lib uninstall-pkgconfig \
 	version
 
-all: ## Compile and test the project (default target).
+
+all: ## Compile and test the project (default target to release mode).
 lib: ## Compile only the library files.
 test: ## Test the library.
-dist: ## Copy the library files into the dist folder.
+out: ## Copy the library files into the out folder.
 install install-headers install-lib install-pkgconfig: ## Install the library fully or partially.
 uninstall uninstall-headers uninstall-lib uninstall-pkgconfig: ## Uninstall the library fully or partially.
 version: ## Print the current version, based on git tag.
 clean: ## Clean the files generated.
 
-all: dist
-lib: $(SRC_DIR)
+
+all: out
+
+out: test
+	$(MAKE) -C $(SRC_DIR) $@
+
 test: lib $(TST_DIR)
-dist: test
-	$(MAKE) -C $(SRC_DIR) $@
-install install-headers install-lib install-pkgconfig: dist
-	$(MAKE) -C $(SRC_DIR) $@
+
+lib: $(SRC_DIR)
+
+install install-headers install-lib install-pkgconfig \
 uninstall uninstall-headers uninstall-lib uninstall-pkgconfig:
 	$(MAKE) -C $(SRC_DIR) $@
-## Generic rule to enter sub-makefiles.
+
+# Generic rule to enter sub-makefiles.
 $(SUB_DIRS):
 	$(MAKE) -C $@
+
 version:
 	@echo "Version $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)"
+
 clean:
 	$(RM) -r $(CLEAN_DIRS)
+
 help:
 	@echo "Usage make [target] [VARIABLE=value]"
 	@echo ""
