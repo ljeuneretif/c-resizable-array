@@ -6,9 +6,6 @@
 #include <stdlib.h>
 
 
-typedef @SCALAR_TYPE@ @RA_LIB_NAME@_scalar_t;
-
-
 #define RESIZABLE_ARRAY_OK 0
 #define RESIZABLE_ARRAY_UNKNOWN_ERROR 1
 #define RESIZABLE_ARRAY_MEMORY_ALLOCATION_ERROR 2
@@ -32,15 +29,15 @@ typedef struct {
 	size_t count_of_empty_datablock;
 
 	size_t length_of_index;
-	@RA_LIB_NAME@_scalar_t** index_of_datablocks;
+	@SCALAR_TYPE@** index_of_datablocks;
 } @RA_LIB_NAME@;
 
 
 @RA_LIB_NAME@* @RA_LIB_NAME@_init(void);
 void @RA_LIB_NAME@_free(@RA_LIB_NAME@*);
 
-int @RA_LIB_NAME@_push(@RA_LIB_NAME@*, @RA_LIB_NAME@_scalar_t);
-int @RA_LIB_NAME@_locate(const @RA_LIB_NAME@* const, size_t, @RA_LIB_NAME@_scalar_t**);
-int @RA_LIB_NAME@_pop(@RA_LIB_NAME@*, @RA_LIB_NAME@_scalar_t*);
+int @RA_LIB_NAME@_push(@RA_LIB_NAME@*, @SCALAR_TYPE@);
+int @RA_LIB_NAME@_locate(const @RA_LIB_NAME@* const, size_t, @SCALAR_TYPE@**);
+int @RA_LIB_NAME@_pop(@RA_LIB_NAME@*, @SCALAR_TYPE@*);
 
 #endif // #ifndef @RA_LIB_NAME@_H

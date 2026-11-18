@@ -20,6 +20,8 @@
 #include <stdint.h>
 
 
+// TODO Add safety guards on array index access.
+
 
 @RA_LIB_NAME@* @RA_LIB_NAME@_init(void) {
 
@@ -65,7 +67,7 @@ void @RA_LIB_NAME@_free(@RA_LIB_NAME@* ra) {
 
 
 
-int @RA_LIB_NAME@_push(@RA_LIB_NAME@* ra, @RA_LIB_NAME@_scalar_t value) {
+int @RA_LIB_NAME@_push(@RA_LIB_NAME@* ra, @SCALAR_TYPE@ value) {
 /*
 	The growth happens in the following manner:
 	The k-th superblock has 2^floor(k/2) datablocks each of length 2^ceiling(k/2)
@@ -108,7 +110,7 @@ int @RA_LIB_NAME@_push(@RA_LIB_NAME@* ra, @RA_LIB_NAME@_scalar_t value) {
 	size_t count_of_empty_datablock = ra->count_of_empty_datablock;
 
 	size_t length_of_index = ra->length_of_index;
-	@RA_LIB_NAME@_scalar_t** index_of_datablocks = ra->index_of_datablocks;
+	@SCALAR_TYPE@** index_of_datablocks = ra->index_of_datablocks;
 
 
 	// 1)
@@ -167,7 +169,7 @@ int @RA_LIB_NAME@_push(@RA_LIB_NAME@* ra, @RA_LIB_NAME@_scalar_t value) {
 					length_of_index *= 2;
 				}
 
-				if (!(index_of_datablocks = realloc(index_of_datablocks, length_of_index * sizeof(@RA_LIB_NAME@_scalar_t*)))) {
+				if (!(index_of_datablocks = realloc(index_of_datablocks, length_of_index * sizeof(@SCALAR_TYPE@*)))) {
 					return RESIZABLE_ARRAY_MEMORY_ALLOCATION_ERROR;
 				}
 
@@ -179,8 +181,8 @@ int @RA_LIB_NAME@_push(@RA_LIB_NAME@* ra, @RA_LIB_NAME@_scalar_t value) {
 
 			// ii)
 			// Create a new last datablock.
-			@RA_LIB_NAME@_scalar_t* datablock = NULL;
-			if (!(datablock = calloc(size_of_last_non_empty_datablock, sizeof(@RA_LIB_NAME@_scalar_t)))) {
+			@SCALAR_TYPE@* datablock = NULL;
+			if (!(datablock = calloc(size_of_last_non_empty_datablock, sizeof(@SCALAR_TYPE@)))) {
 				return RESIZABLE_ARRAY_MEMORY_ALLOCATION_ERROR;
 			}
 			
@@ -230,7 +232,7 @@ int @RA_LIB_NAME@_push(@RA_LIB_NAME@* ra, @RA_LIB_NAME@_scalar_t value) {
 
 
 
-int @RA_LIB_NAME@_locate(const @RA_LIB_NAME@* const ra, size_t i, @RA_LIB_NAME@_scalar_t** presult) {
+int @RA_LIB_NAME@_locate(const @RA_LIB_NAME@* const ra, size_t i, @SCALAR_TYPE@** presult) {
 
 	if (!ra) {
 		return RESIZABLE_ARRAY_NULL_RA_ERROR;
@@ -294,7 +296,7 @@ int @RA_LIB_NAME@_locate(const @RA_LIB_NAME@* const ra, size_t i, @RA_LIB_NAME@_
 
 
 
-int @RA_LIB_NAME@_pop(@RA_LIB_NAME@* ra, @RA_LIB_NAME@_scalar_t* pvalue) {
+int @RA_LIB_NAME@_pop(@RA_LIB_NAME@* ra, @SCALAR_TYPE@* pvalue) {
 
 	if (!ra) {
 		return RESIZABLE_ARRAY_NULL_RA_ERROR;
@@ -324,7 +326,7 @@ int @RA_LIB_NAME@_pop(@RA_LIB_NAME@* ra, @RA_LIB_NAME@_scalar_t* pvalue) {
 	size_t count_of_empty_datablock = ra->count_of_empty_datablock;
 
 	size_t length_of_index = ra->length_of_index;
-	@RA_LIB_NAME@_scalar_t** index_of_datablocks = ra->index_of_datablocks;
+	@SCALAR_TYPE@** index_of_datablocks = ra->index_of_datablocks;
 
 
 	--n;
@@ -348,7 +350,7 @@ int @RA_LIB_NAME@_pop(@RA_LIB_NAME@* ra, @RA_LIB_NAME@_scalar_t* pvalue) {
 			length_of_index /= 2;
 
 			if (length_of_index != 0) {
-				if (!(index_of_datablocks = realloc(index_of_datablocks, length_of_index * sizeof(@RA_LIB_NAME@_scalar_t*)))) {
+				if (!(index_of_datablocks = realloc(index_of_datablocks, length_of_index * sizeof(@SCALAR_TYPE@*)))) {
 					return RESIZABLE_ARRAY_MEMORY_ALLOCATION_ERROR;
 				}
 			} else {

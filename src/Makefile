@@ -10,16 +10,16 @@ include $(SRC_DIR)/mk/lib-shared.mk
 include $(SRC_DIR)/mk/lib-static.mk
 include $(SRC_DIR)/mk/pkgconfig.mk
 include $(SRC_DIR)/mk/out.mk
+include $(SRC_DIR)/mk/dist.mk
 include $(SRC_DIR)/mk/install.mk
 
 
 
 .PHONY: all
-
 all: $(RA_HDR_OUT) \
-	$(RA_LIB_SHARED_FILE_BUILD) $(RA_LIB_SHARED_SONAME_BUILD) $(RA_LIB_SHARED_VERSIONNED_BUILD) \
-	$(RA_LIB_STATIC_FILE_BUILD) \
-	$(PKGCONFIG_BUILD)
+	$(RA_LIB_SHARED_FILE_OUT) $(RA_LIB_SHARED_SONAME_OUT) $(RA_LIB_SHARED_VERSIONNED_OUT) \
+	$(RA_LIB_STATIC_FILE_OUT) \
+	$(PKGCONFIG_OUT)
 
 
 
