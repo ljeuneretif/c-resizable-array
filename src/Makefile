@@ -3,7 +3,12 @@ include ../common.mk
 
 
 
-include $(SRC_DIR)/mk/lib.mk
+include $(SRC_DIR)/mk/generate-header-source.mk
+include $(SRC_DIR)/mk/deps.mk
+include $(SRC_DIR)/mk/lib-flags.mk
+include $(SRC_DIR)/mk/lib-shared.mk
+include $(SRC_DIR)/mk/lib-static.mk
+include $(SRC_DIR)/mk/pkgconfig.mk
 include $(SRC_DIR)/mk/out.mk
 include $(SRC_DIR)/mk/install.mk
 
@@ -12,7 +17,8 @@ include $(SRC_DIR)/mk/install.mk
 .PHONY: all
 
 all: $(RA_HDR_OUT) \
-	$(RA_LIB_FILE_BUILD) $(RA_LIB_SONAME_BUILD) $(RA_LIB_VERSIONNED_BUILD) \
+	$(RA_LIB_SHARED_FILE_BUILD) $(RA_LIB_SHARED_SONAME_BUILD) $(RA_LIB_SHARED_VERSIONNED_BUILD) \
+	$(RA_LIB_STATIC_FILE_BUILD) \
 	$(PKGCONFIG_BUILD)
 
 

@@ -8,3 +8,5 @@ Description: Polymorphic resizable array library in C
 Version: @VERSION@
 Cflags: -I${includedir}
 Libs: -L${libdir} -l@LIBNAME@
+Libs.private: 
+Requires.private: 
