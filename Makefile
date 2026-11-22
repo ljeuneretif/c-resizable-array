@@ -4,7 +4,7 @@ include common.mk
 export MAKEFILE_DEPS := $(realpath $(firstword $(MAKEFILE_LIST)))
 
 
-.PHONY: all clean dist out help \
+.PHONY: all clean out help \
 	install install-headers install-lib-shared install-lib-static install-pkgconfig \
 	lib test $(SUB_DIRS) \
 	uninstall uninstall-headers uninstall-lib-shared uninstall-lib-static uninstall-pkgconfig \
@@ -21,7 +21,7 @@ version: ## Print the current version, based on git tag.
 clean: ## Clean the files generated.
 
 
-all dist out: $(TEST_PREREQ)
+all out: $(TEST_PREREQ)
 	$(MAKE) -C $(SRC_DIR) $@
 
 test: lib $(TST_DIR)

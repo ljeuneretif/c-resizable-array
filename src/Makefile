@@ -10,7 +10,6 @@ include $(SRC_DIR)/mk/lib-shared.mk
 include $(SRC_DIR)/mk/lib-static.mk
 include $(SRC_DIR)/mk/pkgconfig.mk
 include $(SRC_DIR)/mk/out.mk
-include $(SRC_DIR)/mk/dist.mk
 include $(SRC_DIR)/mk/install.mk
 
 
