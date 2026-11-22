@@ -1,12 +1,3 @@
-INSTALL_DIR ?= /usr/local
-INSTALL_HDR_DIR ?= $(INSTALL_DIR)/include/$(RA_LIB_NAME)
-INSTALL_LIB_DIR ?= $(INSTALL_DIR)/lib/$(RA_LIB_NAME)
-INSTALL_PKG_DIR ?= $(INSTALL_DIR)/lib/pkgconfig
-
-NEW_DIRS += $(INSTALL_HDR_DIR) $(INSTALL_LIB_DIR) $(INSTALL_PKG_DIR)
-
-
-
 .PHONY: install install-headers install-lib-shared install-lib-static install-pkgconfig \
 	uninstall uninstall-headers uninstall-lib-shared uninstall-lib-static uninstall-pkgconfig
 

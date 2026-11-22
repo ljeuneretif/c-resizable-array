@@ -1,16 +1,44 @@
+# Input dirs.
 INC_DIR := $(call require_path,$(ROOT_DIR)/src)
 SRC_DIR := $(call require_path,$(ROOT_DIR)/src)
 TST_DIR := $(call require_path,$(ROOT_DIR)/tst)
 
 SUB_DIRS := $(sort $(INC_DIR) $(SRC_DIR) $(TST_DIR))
 
-BUILD_DIR := $(ROOT_DIR)/build
+
+
+# Output dirs.
+BUILD_ROOT_DIR := $(ROOT_DIR)/build
 OUT_DIR := $(ROOT_DIR)/out
 
-BUILD_PATH := $(BUILD_DIR)/$(BUILD)
+BUILD_DIR := $(BUILD_ROOT_DIR)/$(BUILD)
+
+E2E_BUILD_DIR := $(BUILD_DIR)/e2e
+
 
 # Directories to create as required by the operation demanded.
-NEW_DIRS := $(BUILD_DIR) $(OUT_DIR) $(BUILD_PATH)
+NEW_DIRS := $(BUILD_ROOT_DIR) $(OUT_DIR) $(BUILD_DIR) $(E2E_BUILD_DIR)
+
+
 
 # Directories to remove when cleaning.
-CLEAN_DIRS := $(BUILD_DIR) $(OUT_DIR)
+CLEAN_DIRS := $(BUILD_ROOT_DIR) $(OUT_DIR)
+
+
+
+# Paths for installation.
+INSTALL_DIR_DEFAULT := /usr/local
+INSTALL_HDR_SUBDIR_DEFAULT := include/$(RA_LIB_NAME)
+INSTALL_LIB_SUBDIR_DEFAULT := lib/$(RA_LIB_NAME)
+INSTALL_PKG_SUBDIR_DEFAULT := lib/pkgconfig
+
+INSTALL_DIR ?= $(INSTALL_DIR_DEFAULT)
+INSTALL_HDR_SUBDIR ?= $(INSTALL_HDR_SUBDIR_DEFAULT)
+INSTALL_LIB_SUBDIR ?= $(INSTALL_LIB_SUBDIR_DEFAULT)
+INSTALL_PKG_SUBDIR ?= $(INSTALL_PKG_SUBDIR_DEFAULT)
+
+INSTALL_HDR_DIR ?= $(INSTALL_DIR)/$(INSTALL_HDR_SUBDIR)
+INSTALL_LIB_DIR ?= $(INSTALL_DIR)/$(INSTALL_LIB_SUBDIR)
+INSTALL_PKG_DIR ?= $(INSTALL_DIR)/$(INSTALL_PKG_SUBDIR)
+
+NEW_DIRS += $(INSTALL_HDR_DIR) $(INSTALL_LIB_DIR) $(INSTALL_PKG_DIR)
