@@ -21,7 +21,7 @@ version: ## Print the current version, based on git tag.
 clean: ## Clean the files generated.
 
 
-all dist out: test
+all dist out: $(TEST_PREREQ)
 	$(MAKE) -C $(SRC_DIR) $@
 
 test: lib $(TST_DIR)

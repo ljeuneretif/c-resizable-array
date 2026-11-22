@@ -16,7 +16,7 @@
 #endif
 
 #include <limits.h>
-#include "resizable_array.h"
+#include "@RA_LIB_NAME@.h"
 #include <stdint.h>
 
 
