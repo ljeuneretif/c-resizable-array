@@ -1,0 +1,25 @@
+TEST_SRC_FILES := $(sort $(wildcard $(TST_DIR)/test*.c))
+TEST_DEP_FILES := $(TEST_SRC_FILES:$(TST_DIR)/%.c=$(BUILD_DIR)/%.d)
+TEST_OBJ_FILES := $(TEST_SRC_FILES:$(TST_DIR)/%.c=$(BUILD_DIR)/%.o)
+TEST_BIN_FILES := $(TEST_OBJ_FILES:$(BUILD_DIR)/%.o=$(BUILD_DIR)/%.tst)
+
+TEST_CFLAGS := $(ALL_CFLAGS) -D_GNU_SOURCE
+TEST_CPPFLAGS := -I$(BUILD_DIR) -I$(TST_DIR)
+TEST_LDFLAGS := -rdynamic -L$(abspath $(BUILD_DIR))
+TEST_LDLIBS := -l$(RA_LIB_NAME) -ldl -Wl,-rpath,$(abspath $(BUILD_DIR))
+
+TEST_RUN := $(addprefix run-,$(TEST_BIN_FILES))
+
+
+.PHONY: $(TEST_RUN)
+.SECONDARY: $(TEST_BIN_FILES) $(TEST_OBJ_FILES)
+
+
+$(TEST_RUN): run-%: % $(MOCK_LIB_PATH)
+	LD_PRELOAD=$(abspath $(MOCK_LIB_PATH)) $<
+
+$(TEST_BIN_FILES): $(BUILD_DIR)/%.tst: $(BUILD_DIR)/%.o $(RA_LIB_SONAME_BUILD) | $(BUILD_DIR)
+	$(CC) $(TEST_LDFLAGS) -o $@ $< $(TEST_LDLIBS)
+
+$(TEST_OBJ_FILES): $(BUILD_DIR)/%.o: $(TST_DIR)/%.c | $(BUILD_DIR)
+	$(CC) $(TEST_CFLAGS) $(TEST_CPPFLAGS) -o $@ -c $<

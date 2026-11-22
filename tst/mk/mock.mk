@@ -1,0 +1,21 @@
+MOCK_SRC_FILES := $(wildcard $(TST_DIR)/mock_*.c)
+MOCK_DEP_FILES := $(MOCK_SRC_FILES:$(TST_DIR)/%.c=$(BUILD_DIR)/%.d)
+MOCK_OBJ_FILES := $(MOCK_SRC_FILES:$(TST_DIR)/%.c=$(BUILD_DIR)/%.o)
+
+MOCK_LIB_NAME := mock
+MOCK_LIB_PATH := $(BUILD_DIR)/lib$(MOCK_LIB_NAME).so
+
+MOCK_CFLAGS := -fPIC $(ALL_CFLAGS) -D_GNU_SOURCE
+MOCK_CPPFLAGS := -I$(TST_DIR)
+MOCK_LDFLAGS := -shared
+MOCK_LDLIBS := -ldl
+
+
+.SECONDARY: $(MOCK_LIB_PATH) $(MOCK_OBJ_FILES)
+
+
+$(MOCK_LIB_PATH): $(MOCK_OBJ_FILES) | $(BUILD_DIR)
+	$(CC) $(MOCK_LDFLAGS) -o $@ $(filter-out Makefile,$^) $(MOCK_LDLIBS)
+
+$(MOCK_OBJ_FILES): $(BUILD_DIR)/%.o: $(TST_DIR)/%.c | $(BUILD_DIR)
+	$(CC) $(MOCK_CFLAGS) $(MOCK_CPPFLAGS) -o $@ -c $<

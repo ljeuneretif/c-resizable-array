@@ -1,14 +1,32 @@
-#include <assert.h>
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
+	#include <assert.h>
+#else
+	#define STATIC_ASSERT_CONCAT_(a, b) a##b
+	#define STATIC_ASSERT_CONCAT(a, b) STATIC_ASSERT_CONCAT_(a, b)
+
+	#if defined(__GNUC__) || defined(__clang__)
+		#define STATIC_ASSERT_UNUSED __attribute__((unused))
+	#else
+		#define STATIC_ASSERT_UNUSED
+	#endif
+
+	/* Declare an array of size 1 if true, -1 otherwise (compilation error) */
+	#define static_assert(cond) \
+		typedef char STATIC_ASSERT_CONCAT(static_assertion_failed_at_line_, __LINE__)[(cond) ? 1 : -1] STATIC_ASSERT_UNUSED
+#endif
+
 #include <limits.h>
-#include "resizable_array.h"
+#include "@RA_LIB_NAME@.h"
 #include <stdint.h>
 
 
+// TODO Add safety guards on array index access.
 
-resizable_array* resizable_array_init(void) {
 
-	resizable_array* ra;
-	if (!(ra = malloc(sizeof(resizable_array)))) return NULL;
+@RA_LIB_NAME@* @RA_LIB_NAME@_init(void) {
+
+	@RA_LIB_NAME@* ra;
+	if (!(ra = malloc(sizeof(@RA_LIB_NAME@)))) return NULL;
 
 
 	ra->n = 0;
@@ -32,7 +50,7 @@ resizable_array* resizable_array_init(void) {
 
 
 
-void resizable_array_free(resizable_array* ra) {
+void @RA_LIB_NAME@_free(@RA_LIB_NAME@* ra) {
 
 	if (!ra) return;
 
@@ -49,7 +67,7 @@ void resizable_array_free(resizable_array* ra) {
 
 
 
-int resizable_array_push(resizable_array* ra, int value) {
+int @RA_LIB_NAME@_push(@RA_LIB_NAME@* ra, @SCALAR_TYPE@ value) {
 /*
 	The growth happens in the following manner:
 	The k-th superblock has 2^floor(k/2) datablocks each of length 2^ceiling(k/2)
@@ -92,7 +110,7 @@ int resizable_array_push(resizable_array* ra, int value) {
 	size_t count_of_empty_datablock = ra->count_of_empty_datablock;
 
 	size_t length_of_index = ra->length_of_index;
-	int** index_of_datablocks = ra->index_of_datablocks;
+	@SCALAR_TYPE@** index_of_datablocks = ra->index_of_datablocks;
 
 
 	// 1)
@@ -151,7 +169,7 @@ int resizable_array_push(resizable_array* ra, int value) {
 					length_of_index *= 2;
 				}
 
-				if (!(index_of_datablocks = realloc(index_of_datablocks, length_of_index * sizeof(int*)))) {
+				if (!(index_of_datablocks = realloc(index_of_datablocks, length_of_index * sizeof(@SCALAR_TYPE@*)))) {
 					return RESIZABLE_ARRAY_MEMORY_ALLOCATION_ERROR;
 				}
 
@@ -163,8 +181,8 @@ int resizable_array_push(resizable_array* ra, int value) {
 
 			// ii)
 			// Create a new last datablock.
-			int *datablock = NULL;
-			if (!(datablock = calloc(size_of_last_non_empty_datablock, sizeof(int)))) {
+			@SCALAR_TYPE@* datablock = NULL;
+			if (!(datablock = calloc(size_of_last_non_empty_datablock, sizeof(@SCALAR_TYPE@)))) {
 				return RESIZABLE_ARRAY_MEMORY_ALLOCATION_ERROR;
 			}
 			
@@ -214,7 +232,7 @@ int resizable_array_push(resizable_array* ra, int value) {
 
 
 
-int resizable_array_locate(const resizable_array* const ra, size_t i, int** presult) {
+int @RA_LIB_NAME@_locate(const @RA_LIB_NAME@* const ra, size_t i, @SCALAR_TYPE@** presult) {
 
 	if (!ra) {
 		return RESIZABLE_ARRAY_NULL_RA_ERROR;
@@ -278,7 +296,7 @@ int resizable_array_locate(const resizable_array* const ra, size_t i, int** pres
 
 
 
-int resizable_array_pop(resizable_array* ra, int* pvalue) {
+int @RA_LIB_NAME@_pop(@RA_LIB_NAME@* ra, @SCALAR_TYPE@* pvalue) {
 
 	if (!ra) {
 		return RESIZABLE_ARRAY_NULL_RA_ERROR;
@@ -308,7 +326,7 @@ int resizable_array_pop(resizable_array* ra, int* pvalue) {
 	size_t count_of_empty_datablock = ra->count_of_empty_datablock;
 
 	size_t length_of_index = ra->length_of_index;
-	int** index_of_datablocks = ra->index_of_datablocks;
+	@SCALAR_TYPE@** index_of_datablocks = ra->index_of_datablocks;
 
 
 	--n;
@@ -332,7 +350,7 @@ int resizable_array_pop(resizable_array* ra, int* pvalue) {
 			length_of_index /= 2;
 
 			if (length_of_index != 0) {
-				if (!(index_of_datablocks = realloc(index_of_datablocks, length_of_index * sizeof(int*)))) {
+				if (!(index_of_datablocks = realloc(index_of_datablocks, length_of_index * sizeof(@SCALAR_TYPE@*)))) {
 					return RESIZABLE_ARRAY_MEMORY_ALLOCATION_ERROR;
 				}
 			} else {
