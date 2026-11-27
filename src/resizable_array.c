@@ -232,13 +232,13 @@ int @RA_LIB_NAME@_push(@RA_LIB_NAME@* ra, @SCALAR_TYPE@ value) {
 
 
 
-int @RA_LIB_NAME@_locate(const @RA_LIB_NAME@* const ra, size_t i, @SCALAR_TYPE@** presult) {
+int @RA_LIB_NAME@_get(const @RA_LIB_NAME@* const ra, @SCALAR_TYPE@** out_value, size_t i) {
 
 	if (!ra) {
 		return RESIZABLE_ARRAY_NULL_RA_ERROR;
 	}
 
-	if (!presult) {
+	if (!out_value) {
 		return RESIZABLE_ARRAY_INVALID_ARG_ERROR;
 	}
 
@@ -289,14 +289,14 @@ int @RA_LIB_NAME@_locate(const @RA_LIB_NAME@* const ra, size_t i, @SCALAR_TYPE@*
 	const size_t p = ((size2 + (size_t) (k & 1)) << k_half) - 2;
 
 	// 4)
-	*presult = ra->index_of_datablocks[p + b] + e;
+	*out_value = ra->index_of_datablocks[p + b] + e;
 
 	return RESIZABLE_ARRAY_OK;
 }
 
 
 
-int @RA_LIB_NAME@_pop(@RA_LIB_NAME@* ra, @SCALAR_TYPE@* pvalue) {
+int @RA_LIB_NAME@_pop(@RA_LIB_NAME@* ra, @SCALAR_TYPE@* out_value) {
 
 	if (!ra) {
 		return RESIZABLE_ARRAY_NULL_RA_ERROR;
@@ -308,8 +308,8 @@ int @RA_LIB_NAME@_pop(@RA_LIB_NAME@* ra, @SCALAR_TYPE@* pvalue) {
 
 
 	// 1)
-	if (pvalue) {
-		*pvalue = ra->index_of_datablocks[ra->d-1][ra->occupancy_of_last_non_empty_datablock-1];
+	if (out_value) {
+		*out_value = ra->index_of_datablocks[ra->d-1][ra->occupancy_of_last_non_empty_datablock-1];
 	}
 
 	// Computations are performed on the copy of the data structure.

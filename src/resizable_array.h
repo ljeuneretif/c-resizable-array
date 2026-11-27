@@ -37,7 +37,7 @@ typedef struct {
 void @RA_LIB_NAME@_free(@RA_LIB_NAME@*);
 
 int @RA_LIB_NAME@_push(@RA_LIB_NAME@*, @SCALAR_TYPE@);
-int @RA_LIB_NAME@_locate(const @RA_LIB_NAME@* const, size_t, @SCALAR_TYPE@**);
+int @RA_LIB_NAME@_get(const @RA_LIB_NAME@* const, @SCALAR_TYPE@**, size_t);
 int @RA_LIB_NAME@_pop(@RA_LIB_NAME@*, @SCALAR_TYPE@*);
 
 #endif // #ifndef @RA_LIB_NAME@_H

@@ -117,14 +117,14 @@ static void pop_null_ra(void) {
 
 
 
-static void locate(void) {
+static void get(void) {
 	int c = 0, *pv = NULL;
 	mock_start();
 
 	resizable_array* ra = resizable_array_init();
 	resizable_array_push(ra, VALUE1);
 
-	c = resizable_array_locate(ra, 0, &pv);
+	c = resizable_array_get(ra, &pv, 0);
 	assert(c == RESIZABLE_ARRAY_OK);
 	assert(*pv == VALUE1);
 
@@ -135,10 +135,10 @@ static void locate(void) {
 
 
 
-static void locate_null_ra(void) {
+static void get_null_ra(void) {
 	int c = 0, *pv = NULL;
 
-	c = resizable_array_locate(NULL, 0, &pv);
+	c = resizable_array_get(NULL, &pv, 0);
 	assert(c == RESIZABLE_ARRAY_NULL_RA_ERROR);
 	assert(pv == NULL);
 
@@ -147,14 +147,14 @@ static void locate_null_ra(void) {
 
 
 
-static void locate_null_arg(void) {
+static void get_null_arg(void) {
 	int c = 0;
 	mock_start();
 
 	resizable_array* ra = resizable_array_init();
 	resizable_array_push(ra, VALUE1);
 
-	c = resizable_array_locate(ra, 0, NULL);
+	c = resizable_array_get(ra, NULL, 0);
 	assert(c == RESIZABLE_ARRAY_INVALID_ARG_ERROR);
 
 	resizable_array_free(ra);
@@ -164,13 +164,13 @@ static void locate_null_arg(void) {
 
 
 
-static void locate_oob(void) {
+static void get_oob(void) {
 	int c = 0, *pv = NULL;
 	mock_start();
 
 	resizable_array* ra = resizable_array_init();
 
-	c = resizable_array_locate(ra, 0, &pv);
+	c = resizable_array_get(ra, &pv, 0);
 	assert(c == RESIZABLE_ARRAY_OUT_OF_BOUND_ERROR);
 	assert(pv == NULL);
 
@@ -181,7 +181,7 @@ static void locate_oob(void) {
 
 
 
-static void push_locate_pop_32(void) {
+static void push_get_pop_32(void) {
 	const int offset = 15;
 	const int max = 32;
 
@@ -201,7 +201,7 @@ static void push_locate_pop_32(void) {
 
 	for (int i = 0; i < max; ++i) {
 		pv = NULL;
-		c = resizable_array_locate(ra, (size_t) i, &pv);
+		c = resizable_array_get(ra, &pv, (size_t) i);
 		assert(c == RESIZABLE_ARRAY_OK);
 		assert(*pv == i+offset);
 	}
@@ -253,12 +253,12 @@ int main(void) {
 	pop_empty();
 	pop_null_ra();
 
-	locate();
-	locate_null_ra();
-	locate_null_arg();
-	locate_oob();
+	get();
+	get_null_ra();
+	get_null_arg();
+	get_oob();
 
-	push_locate_pop_32();
+	push_get_pop_32();
 	reuse_empty_ra();
 
 	return 0;
