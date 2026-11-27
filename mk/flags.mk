@@ -6,11 +6,11 @@ WARN_CFLAGS := -Wall -Wextra -Wpedantic -Wshadow -Wconversion\
 CFLAGS ?= $(STDC) $(WARN_CFLAGS)
 
 ifeq ($(BUILD),release)
-    OPT_CFLAGS := -O2
+	OPT_CFLAGS := -O2
 else ifeq ($(BUILD),debug)
-    OPT_CFLAGS := -g -DDEBUG
+	OPT_CFLAGS := -g -DDEBUG
 else ifeq ($(BUILD),trace)
-    OPT_CFLAGS := -g -DDEBUG -DTRACE
+	OPT_CFLAGS := -g -DDEBUG -DTRACE
 endif
 
 DEP_CFLAGS := -MMD -MP

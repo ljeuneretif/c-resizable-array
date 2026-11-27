@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := all
 include ../common.mk
 
-
+# TODO: Add compilation and unit-test runs with -fsanitize=address,undefined and without LD_PRELOAD.
 
 include $(SRC_DIR)/mk/generate-header-source.mk
 include $(SRC_DIR)/mk/deps.mk
