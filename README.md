@@ -83,7 +83,7 @@ The artifacts are installed with `make install`/uninstalled with `make uninstall
 `INSTALL_SUBDIR`: name of the subfolder of `include` where the header should be installed, and the name of the subfolder of `lib` where the library should be installed.
 
 For example `INSTALL_SUBDIR=ra_float` will install:
-- the header inside `/usr/local/include/ra_float`
+- the header inside `/usr/local/include/ra_float/`
 - the library inside `/usr/local/lib/ra_float/`.
 
 
